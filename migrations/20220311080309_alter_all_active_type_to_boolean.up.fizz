@@ -1,0 +1,6 @@
+drop_column("hosts", "active")
+add_column("hosts", "active", "bool", {"default": 0})
+drop_column("host_services", "active")
+add_column("host_services", "active", "bool", {"default": 0})
+drop_column("services", "active")
+add_column("services", "active", "bool", {"default": 0})
