@@ -85,7 +85,6 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 	defer cancel()
 
 	// Create a bcrypt hash of the plain-text password.
-
 	stmt := `
 	INSERT INTO hosts (host_name, canonical_name, url, ip, ipv6, location, os, active, created_at, updated_at)
     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id `
@@ -102,17 +101,31 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 		h.Active,
 		time.Now(),
 		time.Now(),
-		).Scan(&newId)
+	).Scan(&newId)
 
 	if err != nil {
 		log.Println(err)
 		return newId, err
 	}
 
-	stmt = `
+	stmt = `select id from services`
+	rows, err := m.DB.QueryContext(ctx, stmt)
+
+	for rows.Next() {
+		var serviceID int
+		err := rows.Scan(&serviceID)
+		if err != nil {
+			log.Println(err)
+		}
+
+		stmt = `
 		insert into host_services (host_id, service_id, active, schedule_number, schedule_unit, status, created_at, updated_at) 
-		values ($1, 1, 0, 3, 'm', 'pending', $2, $3)`
-	_, err = m.DB.ExecContext(ctx, stmt, newId, time.Now(), time.Now())
+		values ($1, $2, false, 3, 'm', 'pending', $3, $4)`
+
+		_, err = m.DB.ExecContext(ctx, stmt, newId, serviceID, time.Now(), time.Now())
+	}
+
+	defer rows.Close()
 
 	if err != nil {
 		log.Println(err)
@@ -159,7 +172,7 @@ func (m *postgresDBRepo) UpdateHost(h models.Host) error {
 	return err
 }
 
-func  (m *postgresDBRepo) UpdateHostServices(hs models.HostService) error {
+func (m *postgresDBRepo) UpdateHostServices(hs models.HostService) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -192,16 +205,16 @@ func (m *postgresDBRepo) InsertEvent(e models.Event) error {
 			 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 	_, err := m.DB.ExecContext(ctx, stmt,
-		    e.EventType,
-			e.HostServiceID,
-			e.HostID,
-			e.ServiceID,
-			e.ServiceName,
-			e.HostName,
-			e.Message,
-			time.Now(),
-			time.Now(),
-		)
+		e.EventType,
+		e.HostServiceID,
+		e.HostID,
+		e.ServiceID,
+		e.ServiceName,
+		e.HostName,
+		e.Message,
+		time.Now(),
+		time.Now(),
+	)
 
 	if err != nil {
 		log.Println(err)
@@ -225,7 +238,7 @@ func (m *postgresDBRepo) GetAllEvents() ([]*models.Event, error) {
 		return nil, err
 	}
 
-	if rows.Next() {
+	for rows.Next() {
 		event := &models.Event{}
 		err = rows.Scan(
 			&event.EventType,
@@ -240,4 +253,26 @@ func (m *postgresDBRepo) GetAllEvents() ([]*models.Event, error) {
 	}
 
 	return events, err
+}
+
+func (m *postgresDBRepo) GetLastEventByHostServiceId(hostServiceId int) (models.Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `SELECT event_type, host_service_id, host_id, service_id, service_name, host_name, message, created_at FROM events
+			WHERE host_service_id = $1
+			ORDER BY id DESC LIMIT 1`
+
+	var event models.Event
+
+	err := m.DB.QueryRowContext(ctx, stmt, hostServiceId).Scan(
+		&event.EventType,
+		&event.HostServiceID,
+		&event.HostID,
+		&event.ServiceID,
+		&event.ServiceName,
+		&event.HostName,
+		&event.Message,
+		&event.CreatedAt)
+	return event, err
 }

@@ -163,6 +163,7 @@ func (repo *DBRepo) Host(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
 	var h models.Host
+	hostServiceMessage := make(map[int]string)
 
 	if id > 0 {
 		//get the host from database
@@ -170,8 +171,27 @@ func (repo *DBRepo) Host(w http.ResponseWriter, r *http.Request) {
 		h.HostServices, _ = repo.DB.GetHostServicesByHostId(id)
 	}
 
+	for _, hs := range h.HostServices {
+		lastEvent, err := repo.DB.GetLastEventByHostServiceId(hs.ID)
+		if err != nil {
+			log.Println(err)
+		}
+		hostServiceMessage[hs.ID] = lastEvent.Message
+	}
+
+	statusMap := make(map[string]bool)
+	statusMap["healthy"] = false
+	statusMap["warning"] = false
+	statusMap["problem"] = false
+	statusMap["pending"] = false
+	for _, hs := range h.HostServices {
+		statusMap[hs.Status] = true
+	}
+
 	vars := make(jet.VarMap)
 	vars.Set("host", h)
+	vars.Set("hostServiceMessage", hostServiceMessage)
+	vars.Set("statusMap", statusMap)
 
 	err := helpers.RenderPage(w, r, "host", vars, nil)
 	if err != nil {
@@ -219,6 +239,7 @@ func (repo *DBRepo) PostHost(w http.ResponseWriter, r *http.Request) {
 type serviceJSON struct {
 	OK bool `json:"ok"`
 }
+
 // ToggleServiceForHost toggle service for host
 func (repo *DBRepo) ToggleServiceForHost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -314,7 +335,7 @@ func (repo *DBRepo) SetSystemPref(w http.ResponseWriter, r *http.Request) {
 	repo.App.PreferenceMap["monitoring_live"] = prefValue
 
 	out, _ := json.MarshalIndent(resp, "", "  ")
-	w.Header().Set("Content-Type","application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
 
@@ -355,7 +376,7 @@ func (repo *DBRepo) ToggleMonitoring(w http.ResponseWriter, r *http.Request) {
 	resp.OK = true
 
 	out, _ := json.MarshalIndent(resp, "", "  ")
-	w.Header().Set("Content-Type","application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
 

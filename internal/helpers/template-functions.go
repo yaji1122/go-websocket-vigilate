@@ -7,8 +7,8 @@ func addTemplateFunctions() {
 		return HumanDate(t)
 	})
 
-	views.AddGlobal("dateFromLayout", func(t time.Time, l string) string {
-		return FormatDateWithLayout(t, l)
+	views.AddGlobal("dateFromLayout", func(t time.Time) string {
+		return FormatDateWithLayout(t, "2006-01-02 15:04")
 	})
 
 	views.AddGlobal("dateAfterYearOne", func(t time.Time) bool {

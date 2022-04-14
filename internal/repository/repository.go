@@ -41,5 +41,6 @@ type DatabaseRepo interface {
 
 	//events
 	GetAllEvents() ([]*models.Event, error)
+	GetLastEventByHostServiceId(hostServiceId int) (models.Event, error)
 	InsertEvent(e models.Event) error
 }

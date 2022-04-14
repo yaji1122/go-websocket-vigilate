@@ -47,7 +47,9 @@
                         <td>
                             {{.Status}}
                         </td>
-                        <td></td>
+                        <td>
+                            {{hostServiceMessage[.ID]}}
+                        </td>
                     </tr>
                 {{end}}
                 {{else}}

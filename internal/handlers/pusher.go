@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/pusher/pusher-http-go"
 	"io"
 	"log"
@@ -19,7 +20,7 @@ func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 		UserID: strconv.Itoa(userID),
 		UserInfo: map[string]string{
 			"name": u.FirstName,
-			"id": strconv.Itoa(userID),
+			"id":   strconv.Itoa(userID),
 		},
 	}
 
@@ -33,4 +34,12 @@ func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
+func (repo *DBRepo) SendPrivateMessage(w http.ResponseWriter, r *http.Request) {
+	msg := r.URL.Query().Get("msg")
+	id := r.URL.Query().Get("id")
 
+	data := make(map[string]string)
+	data["message"] = msg
+
+	_ = repo.App.WsClient.Trigger(fmt.Sprintf("private-channel-%s", id), "private-message", data)
+}

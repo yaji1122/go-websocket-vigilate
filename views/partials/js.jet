@@ -10,7 +10,16 @@
     })
 
     let publicChannel = pusher.subscribe("public-channel");
+    let privateChannel = pusher.subscribe("private-channel-{{.User.ID}}")
 
+    privateChannel.bind("private-message", function(data){
+        attention.toast({
+            html: data.message,
+            icon: 'success',
+            timer: 3000,
+            showCloseButton: true
+        })
+    })
     //things we want to look for
 
     // - service goes down

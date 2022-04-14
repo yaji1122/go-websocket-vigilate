@@ -157,6 +157,7 @@ Host
                                 </tr>
                                 </thead>
                                 <tbody>
+                                {{if statusMap["healthy"]}}
                                 {{range host.HostServices}}
                                     {{if .Status == "healthy"}}
                                     <tr id="host-service-{{.ID}}">
@@ -169,18 +170,21 @@ Host
                                         </td>
                                         <td>
                                             {{if dateAfterYearOne(.LastCheck)}}
-                                                {{dateFromLayout(.LastCheck, "2006-01-02 15:04")}}
+                                                {{dateFromLayout(.LastCheck)}}
                                             {{else}}
                                             Pending...
                                             {{end}}
                                         </td>
-                                        <td></td>
-                                    </tr>
-                                    {{else}}
-                                    <tr>
-                                        <td colspan="3">No Service</td>
+                                        <td>
+                                            {{hostServiceMessage[.ID]}}
+                                        </td>
                                     </tr>
                                     {{end}}
+                                {{end}}
+                                {{else}}
+                                <tr>
+                                    <td colspan="3">No Service</td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>
@@ -200,30 +204,34 @@ Host
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {{range host.HostServices}}
-                                    {{if .Status == "warning"}}
-                                    <tr id="host-service-{{.ID}}">
-                                        <td>
-                                            <i class="{{.Service.Icon}}"></i>
-                                            {{.Service.ServiceName}}
-                                            <span class="badge bg-secondary pointer" onclick="checkNow({{.ID}}, '{{.Status}}')">
-                                                Check Now
-                                            </span>
-                                        </td>
-                                        <td>
-                                        {{if dateAfterYearOne(.LastCheck)}}
-                                            {{dateFromLayout(.LastCheck, "2006-01-02 15:04")}}
-                                        {{else}}
-                                        Pending...
+                                {{if statusMap["warning"]}}
+                                    {{range host.HostServices}}
+                                        {{if .Status == "warning"}}
+                                        <tr id="host-service-{{.ID}}">
+                                            <td>
+                                                <i class="{{.Service.Icon}}"></i>
+                                                {{.Service.ServiceName}}
+                                                <span class="badge bg-secondary pointer" onclick="checkNow({{.ID}}, '{{.Status}}')">
+                                                    Check Now
+                                                </span>
+                                            </td>
+                                            <td>
+                                            {{if dateAfterYearOne(.LastCheck)}}
+                                                {{dateFromLayout(.LastCheck)}}
+                                            {{else}}
+                                            Pending...
+                                            {{end}}
+                                            </td>
+                                            <td>
+                                                {{hostServiceMessage[1]}}
+                                            </td>
+                                        </tr>
                                         {{end}}
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    {{else}}
-                                    <tr>
-                                        <td colspan="3">No Service</td>
-                                    </tr>
                                     {{end}}
+                                {{else}}
+                                <tr>
+                                    <td colspan="3">No Service</td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>
@@ -243,30 +251,34 @@ Host
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {{range host.HostServices}}
-                                    {{if .Status == "problem"}}
-                                    <tr id="host-service-{{.ID}}">
-                                        <td>
-                                            <i class="{{.Service.Icon}}"></i>
-                                            {{.Service.ServiceName}}
-                                            <span class="badge bg-secondary pointer" onclick="checkNow({{.ID}}, '{{.Status}}')">
-                                                    Check Now
-                                                </span>
-                                        </td>
-                                        <td>
-                                            {{if dateAfterYearOne(.LastCheck)}}
-                                                {{dateFromLayout(.LastCheck, "2006-01-02 15:04")}}
-                                                {{else}}
-                                            Pending...
-                                            {{end}}
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    {{else}}
-                                    <tr>
-                                        <td colspan="3">No Service</td>
-                                    </tr>
+                                {{if statusMap["problem"]}}
+                                    {{range host.HostServices}}
+                                        {{if .Status == "problem"}}
+                                        <tr id="host-service-{{.ID}}">
+                                            <td>
+                                                <i class="{{.Service.Icon}}"></i>
+                                                {{.Service.ServiceName}}
+                                                <span class="badge bg-secondary pointer" onclick="checkNow({{.ID}}, '{{.Status}}')">
+                                                        Check Now
+                                                    </span>
+                                            </td>
+                                            <td>
+                                                {{if dateAfterYearOne(.LastCheck)}}
+                                                    {{dateFromLayout(.LastCheck)}}
+                                                    {{else}}
+                                                Pending...
+                                                {{end}}
+                                            </td>
+                                            <td>
+                                                {{hostServiceMessage[.ID]}}
+                                            </td>
+                                        </tr>
+                                        {{end}}
                                     {{end}}
+                                {{else}}
+                                <tr>
+                                    <td colspan="3">No Service</td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>
@@ -286,6 +298,7 @@ Host
                                 </tr>
                                 </thead>
                                 <tbody>
+                                {{if statusMap["pending"]}}
                                 {{range host.HostServices}}
                                     {{if .Status == "pending"}}
                                     <tr id="host-service-{{.ID}}">
@@ -298,18 +311,21 @@ Host
                                         </td>
                                         <td>
                                             {{if dateAfterYearOne(.LastCheck)}}
-                                            {{dateFromLayout(.LastCheck, "2006-01-02 15:04")}}
+                                            {{dateFromLayout(.LastCheck)}}
                                             {{else}}
                                             Pending...
                                             {{end}}
                                         </td>
-                                        <td></td>
-                                    </tr>
-                                    {{else}}
-                                    <tr>
-                                        <td colspan="3">No Service</td>
+                                        <td>
+                                            {{hostServiceMessage[.ID]}}
+                                        </td>
                                     </tr>
                                     {{end}}
+                                {{end}}
+                                {{else}}
+                                <tr>
+                                    <td colspan="3">No Service</td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>

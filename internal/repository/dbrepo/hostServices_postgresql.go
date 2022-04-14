@@ -212,7 +212,7 @@ func (m *postgresDBRepo) GetServicesToMonitor() ([]models.HostService, error) {
 	}
 
 	var hostServices []models.HostService
-	if rows.Next() {
+	for rows.Next() {
 		var hs models.HostService
 		err = rows.Scan(
 			&hs.ID,
@@ -236,4 +236,3 @@ func (m *postgresDBRepo) GetServicesToMonitor() ([]models.HostService, error) {
 
 	return hostServices, err
 }
-

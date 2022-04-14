@@ -42,7 +42,7 @@
                         <td>{{.EventType}}</td>
                         <td>{{.HostName}}</td>
                         <td>{{.ServiceName}}</td>
-                        <td>{{dateFromLayout(.CreateAt)}}</td>
+                        <td>{{dateFromLayout(.CreatedAt)}}</td>
                         <td>{{.Message}}</td>
                     </tr>
                 {{end}}

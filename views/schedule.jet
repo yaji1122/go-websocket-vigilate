@@ -44,14 +44,14 @@
                             <td>{{.ScheduleText}}</td>
                             <td>
                                 {{if dateAfterYearOne(.LastRun)}}
-                                    {{dateFromLayout(.LastRun, "2006-01-02 3:04:05 PM")}}
+                                    {{dateFromLayout(.LastRun)}}
                                 {{else}}
                                     Pending...
                                 {{end}}
                             </td>
                             <td>
                                 {{if dateAfterYearOne(.Entry.Next)}}
-                                    {{dateFromLayout(.Entry.Next, "2006-01-02 3:04:05 PM")}}
+                                    {{dateFromLayout(.Entry.Next)}}
                                 {{else}}
                                 Pending...
                                 {{end}}
